@@ -10,7 +10,7 @@ var maze;
 // create a renderer instance.
 var renderer = PIXI.autoDetectRenderer(600, 600, null, true);
 var state;
-var step = 2;
+var step = 16;
 var collision = 0;
 var canvas;
 var ctx;
@@ -29,7 +29,7 @@ window.onload = function() {
     document.body.appendChild(renderer.view);
 
     PIXI.loader
-        .add('maze','resources/maze2.png')
+        .add('maze','resources/maze-thick.png')
         .add('smiley', 'resources/smiley.png')
         .on("progress", loadProgressHandler)
         .load(function (loader, resources)
@@ -37,7 +37,6 @@ window.onload = function() {
         maze = new PIXI.Sprite(resources.maze.texture);
         maze.position.x = 50;
         maze.position.y = 50;
-        maze.scale = new PIXI.Point(1.5, 1.5);
         stage.addChild(maze);
         
         fpsText = new PIXI.Text("", {font: "arial 10px", fill: "#ffffff"})
@@ -62,11 +61,13 @@ window.onload = function() {
         stage.addChild(finishText);
         
         smiley = new PIXI.Sprite(resources.smiley.texture);
-        smiley.x = 275;
-        smiley.y = 55;
+        smiley.x = 68;
+        smiley.y = 103;
         smiley.vx = 0;
         smiley.vy = 0;
-        smiley.scale = new PIXI.Point(0.7, 0.7);
+//        smiley.scale = new PIXI.Point(0.7, 0.7);
+        smiley.width = 16;
+        smiley.height = 16;
         stage.addChild(smiley);
         
         stage.interactive = true;
@@ -81,64 +82,52 @@ window.onload = function() {
         stage.addChild(finishBox);
         
         setupMobileControls();
-//        
-//        var leftTexture = leftTapShape.generateTexture();
-//        var leftSprite = new PIXI.Sprite(leftTexture);
-//
-//        leftSprite.interactive = true;
-//        leftSprite.buttonMode = true;
-//        leftSprite.position = new PIXI.Point(maze.position.x, maze.position.y);
-//        leftSprite.mouseover = function (mouseData) {
-//            console.log('mouseover left sprite');
-//        }
-//        stage.addChild(leftSprite);
         
         left.press = function() {
-            smiley.vx = -step;
+            smiley.x += -step;
             smiley.vy = 0;
         };
-        left.release = function() {
-            if (!right.isDown && smiley.vy === 0) {
-              smiley.vx = 0;
-            }
-        };
+//        left.release = function() {
+//            if (!right.isDown && smiley.vy === 0) {
+//              smiley.vx = 0;
+//            }
+//        };
         
         up.press = function() {
-            smiley.vy = -step;
+            smiley.y += -step;
             smiley.vx = 0;
         };
-        up.release = function() {
-            if (!down.isDown && smiley.vx === 0) {
-              smiley.vy = 0;
-            }
-        };
+//        up.release = function() {
+//            if (!down.isDown && smiley.vx === 0) {
+//              smiley.vy = 0;
+//            }
+//        };
         
         right.press = function() {
-            smiley.vx = step;
+            smiley.x += step;
             smiley.vy = 0;
         };
-        right.release = function() {
-            if (!left.isDown && smiley.vy === 0) {
-              smiley.vx = 0;
-            }
-        };
+//        right.release = function() {
+//            if (!left.isDown && smiley.vy === 0) {
+//              smiley.vx = 0;
+//            }
+//        };
         
         down.press = function() {
-            smiley.vy = step;
+            smiley.y += step;
             smiley.vx = 0;
         };
-        down.release = function() {
-            if (!up.isDown && smiley.vx === 0) {
-              smiley.vy = 0;
-            }
-        };
+//        down.release = function() {
+//            if (!up.isDown && smiley.vx === 0) {
+//              smiley.vy = 0;
+//            }
+//        };
         
         
         stage.mousemove = stage.touchmove = stage.mousedown = stage.touchstart = stageMouseCoordPrint;
         
         canvas = renderer.view;
         ctx = canvas.getContext('webgl') || canvas.getContext("2d");
-
         state = play;
         t = setInterval(addSeconds, 1000);
         animate();
@@ -311,7 +300,7 @@ function play() {
     
     if (smiley.vx > 0) {
         //moving right
-        checkCollision(smiley.x + smiley.width, smiley.y, 5, 11);
+        checkCollision(smiley.x + smiley.width, smiley.y, 16, 16);
             if (collision == 1) {
             smiley.vx = 0;
             collision = 0;
@@ -321,7 +310,7 @@ function play() {
         }
     } else if (smiley.vx < 0) {
         //moving left
-        checkCollision(smiley.x - 5, smiley.y, 5, 11);
+        checkCollision(smiley.x - 16, smiley.y, 16, 16);
         if (collision == 1) {
             smiley.vx = 0;
             collision = 0;
@@ -331,7 +320,7 @@ function play() {
         }
     } else if (smiley.vy > 0) {
         //moving down
-        checkCollision(smiley.x, smiley.y + 11, smiley.width, 5);
+        checkCollision(smiley.x, smiley.y + 16, smiley.width, 16);
         if (collision == 1) {
             smiley.vy = 0;
             collision = 0;
@@ -341,7 +330,7 @@ function play() {
         }
     } else if (smiley.vy < 0) {
         //moving up
-        checkCollision(smiley.x, smiley.y - 5, smiley.width, 5);
+        checkCollision(smiley.x, smiley.y - 16, smiley.width, 16);
         if (collision == 1) {
             smiley.vy = 0;
             collision = 0;
@@ -350,8 +339,8 @@ function play() {
             up.isDown = false;
         }
     }
-    smiley.x += smiley.vx;
-    smiley.y += smiley.vy;
+//    smiley.x += smiley.vx;
+//    smiley.y += smiley.vy;
     
     if (hitTestRectangle(smiley, finishBox) && !isFinished) {
         isFinished = true;
